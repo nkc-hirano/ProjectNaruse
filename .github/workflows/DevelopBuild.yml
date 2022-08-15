@@ -1,0 +1,39 @@
+name: DevelopBuild
+
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'write message'
+        required: ture
+        default: 'Write some messsage(default)'
+        type: string
+
+jobs:
+   build:
+    name: Run the StandaloneWindows64 build
+    runs-on: ubuntu-latest
+
+    steps:
+      # actions/checkout@v2 を利用して作業ディレクトリに
+      # Unity プロジェクトの中身をダウンロードしてくる
+      - name: Check out my unity project.
+        uses: actions/checkout@v2
+
+
+      # GameCI の Builder を利用して、
+      # Unity プロジェクトのビルドを実行する
+      - name: Run the StandaloneWindows64 build
+        uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: StandaloneWindows64
+
+      # Builder で出力した StandaloneWindows64 ビルドをアーティファクトでダウンロード可能にする
+      - name: Upload the StandaloneWindows64 Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ github.event.inputs.message: }} exe"
+          path: build
